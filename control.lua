@@ -128,7 +128,6 @@ end
 script.on_event(defines.events.on_lua_shortcut, function(event)
     if event and event.prototype_name == "resource-finder-button" then
         open_gui(event.player_index)
-        -- search_for_resource(game.players[event.player_index], 'iron-ore')
     end
 end)
 
@@ -218,7 +217,7 @@ script.on_event(defines.events.on_gui_click, function (event)
         local count = gui.count_slider.slider_value
         local type = gui.resource_type.elem_value
 
-        player.print(range .. " " .. count .. " " .. type)
+        search_for_resource(game.players[event.player_index], type, range, count)
         return
     end
 end)
