@@ -53,10 +53,10 @@ local function cardinal_neighbors(position, distance)
     return positions
 end
 
-local function ping(chunk, player, description)
+local function ping(chunk, player, description, surface)
     description = description or 'Unnamed Chunk'
     local pos = chunk_pos(chunk)
-    player.print(description .. ' at [gps=' .. round(pos.x) .. ',' .. round(pos.y) .. ']')
+    player.print(description .. ' at [gps=' .. round(pos.x) .. ',' .. round(pos.y) .. ',' .. surface.name .. ']')
 end
 
 local function is_in_distance(chunk, list_of_chunks, distance)
@@ -126,7 +126,7 @@ function search_for_resource(player, resource, distance, num_results)
     for _, chunk in ipairs(searched_chunks) do
         if not is_in_distance(chunk, best_chunks, distance) then
             local image = '[img=entity.' .. resource .. ']'
-            ping(chunk.position, player, image .. format_amount(chunk.with_neighbors, resource))
+            ping(chunk.position, player, image .. format_amount(chunk.with_neighbors, resource), surface)
             table.insert(best_chunks, chunk)
             if #best_chunks >= num_results then
                 break
