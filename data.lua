@@ -13,7 +13,7 @@ data:extend({
       flags = {"gui-icon"}
     },
     small_icon = {
-      filename = "__car-finder__/graphics/button-24-black.png",
+      filename = "__resource-finder__/graphics/button-24-black.png",
       priority = "extra-high-no-scale",
       size = 24,
       -- scale = 0.5,

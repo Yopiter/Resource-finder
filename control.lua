@@ -59,11 +59,23 @@ local function ping(chunk, player, description)
     player.print(description .. ' at [gps=' .. round(pos.x) .. ',' .. round(pos.y) .. ']')
 end
 
-function search_for_resource(player, resource)
+local function is_in_distance(chunk, list_of_chunks, distance)
+    for _, existing_chunk in pairs(list_of_chunks) do
+        if math.abs(chunk.position.x - existing_chunk.position.x) <= distance or math.abs(chunk.position.y - existing_chunk.position.y) <= distance then
+            return true
+        end
+    end
+    return false
+end
+
+function search_for_resource(player, resource, distance, num_results)
+    distance = distance or 1
+    num_results = num_results or 5
     local surface = player.surface
     local force = player.force
     local searched_chunks = {}
     local chunks_with_res = {}
+
     -- Find chunks that contain the resource in question
     for chunk in surface.get_chunks() do
         if force.is_chunk_charted(surface, chunk) and surface.count_entities_filtered { type = 'resource',
@@ -84,7 +96,7 @@ function search_for_resource(player, resource)
     -- Naive approach: For each chunk, search neighbor chunks for same res and add to this chunk
     for _, chunk in pairs(chunks_with_res) do
         -- group with any adjacent chunk that also contains the resource
-        local neighbors = cardinal_neighbors(chunk.position, 1)
+        local neighbors = cardinal_neighbors(chunk.position, distance)
         for _, neighbor in pairs(neighbors) do
             local neighbor_context = {
                 position = neighbor,
@@ -94,15 +106,21 @@ function search_for_resource(player, resource)
             if chunks_with_res[chunk_key(neighbor_context)] ~= nil then
                 chunk.with_neighbors = chunk.with_neighbors + chunks_with_res[chunk_key(neighbor_context)].amount
             end
-
         end
         table.insert(searched_chunks, chunk)
     end
     table.sort(searched_chunks, function(a, b)
         return a.with_neighbors > b.with_neighbors
     end)
+    local best_chunks = {}
     for _, chunk in ipairs(searched_chunks) do
-        ping(chunk.position, player, util.format_number(chunk.with_neighbors, true))
+        if not is_in_distance(chunk, best_chunks, distance) then
+            ping(chunk.position, player, util.format_number(chunk.with_neighbors, true))
+            table.insert(best_chunks, chunk)
+            if #best_chunks >= num_results then
+                break
+            end
+        end
     end
 end
 
