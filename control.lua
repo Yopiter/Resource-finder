@@ -109,6 +109,98 @@ end
 -- user clicked button directly
 script.on_event(defines.events.on_lua_shortcut, function(event)
     if event and event.prototype_name == "resource-finder-button" then
-        search_for_resource(game.players[event.player_index], 'iron-ore')
+        open_gui(event.player_index)
+        -- search_for_resource(game.players[event.player_index], 'iron-ore')
+    end
+end)
+
+function add_titlebar(gui, caption, close_button_name)
+    local titlebar = gui.add{type = "flow"}
+    titlebar.drag_target = gui
+    titlebar.add{
+      type = "label",
+      style = "frame_title",
+      caption = caption,
+      ignored_by_interaction = true,
+    }
+    local filler = titlebar.add{
+      type = "empty-widget",
+      style = "draggable_space",
+      ignored_by_interaction = true,
+    }
+    filler.style.height = 24
+    filler.style.horizontally_stretchable = true
+    titlebar.add{
+      type = "sprite-button",
+      name = close_button_name,
+      style = "frame_action_button",
+      sprite = "utility/close_white",
+      hovered_sprite = "utility/close_black",
+      clicked_sprite = "utility/close_black",
+      tooltip = {"gui.close-instruction"},
+    }
+  end
+
+function open_gui(player_index)
+    local player = game.get_player(player_index)
+    local gui = player.gui.screen
+
+    if gui.resource_finder then
+        return
+    end
+
+    local frame = gui.add{type="frame", name="resource_finder", direction="vertical"}
+    add_titlebar(frame, "Resource Finder", "close_button")
+    frame.auto_center = true
+    frame.style.size = {500, 500}
+
+    frame.add{type="label", caption="Type:"}
+    frame.add{type="choose-elem-button", elem_type="entity", name="resource_type", entity="iron-ore", filters={filter = "type", type = "resource"}}
+
+    frame.add{type="label", caption="Range:"}
+    frame.add{type="slider", name="range_slider", minimum_value=0, maximum_value=100, value=1}
+    frame.add{type="label", name="range_value", caption=0}
+
+    frame.add{type="label", caption="Count:"}
+    frame.add{type="slider", name="count_slider", minimum_value=1, maximum_value=100, value=5}
+    frame.add{type="label", name="count_value", caption=0}
+
+    frame.add{type="button", name="ok_button", caption="Find"}
+end
+
+script.on_event(defines.events.on_gui_value_changed, function (event)
+    local player = game.get_player(event.player_index)
+
+    if event.element.name == "range_slider" then
+        local gui = player.gui.screen.resource_finder
+        gui.range_value.caption = event.element.slider_value
+        return
+    end
+
+    if event.element.name == "count_slider" then
+        local gui = player.gui.screen.resource_finder
+        gui.count_value.caption = event.element.slider_value
+        return
+    end
+end)
+
+script.on_event(defines.events.on_gui_click, function (event)
+    local player = game.get_player(event.player_index)
+
+    if event.element.name == "close_button" then
+        local gui = player.gui.screen.resource_finder
+        gui.destroy()
+        return
+    end
+
+    if event.element.name == "ok_button" then
+        local gui = player.gui.screen.resource_finder
+
+        local range = gui.range_slider.slider_value
+        local count = gui.count_slider.slider_value
+        local type = gui.resource_type.elem_value
+
+        player.print(range .. " " .. count .. " " .. type)
+        return
     end
 end)
