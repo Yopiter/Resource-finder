@@ -176,12 +176,12 @@ function open_gui(player_index)
     frame.add{type="choose-elem-button", elem_type="entity", name="resource_type", entity="iron-ore", filters={filter = "type", type = "resource"}}
 
     frame.add{type="label", caption="Range:"}
-    frame.add{type="slider", name="range_slider", minimum_value=0, maximum_value=100, value=1}
-    frame.add{type="label", name="range_value", caption=0}
+    local range_slider = frame.add{type="slider", name="range_slider", minimum_value=0, maximum_value=100, value=1}
+    frame.add{type="label", name="range_value", caption=range_slider.slider_value}
 
     frame.add{type="label", caption="Count:"}
-    frame.add{type="slider", name="count_slider", minimum_value=1, maximum_value=100, value=5}
-    frame.add{type="label", name="count_value", caption=0}
+    local count_slider = frame.add{type="slider", name="count_slider", minimum_value=1, maximum_value=100, value=5}
+    frame.add{type="label", name="count_value", caption=count_slider.slider_value}
 
     frame.add{type="button", name="ok_button", caption="Find"}
 end
