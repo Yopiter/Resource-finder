@@ -183,54 +183,56 @@ function open_gui(player_index)
         return
     end
 
-    local frame = gui.add{type="frame", name="resource_finder", direction="vertical"}
+    local frame = gui.add { type = "frame", name = "resource_finder", direction = "vertical" }
     add_titlebar(frame, "Resource Finder", "close_button")
     local close_button = frame.close_button
     frame.auto_center = true
-    frame.style.size = {286, 176}
+    frame.style.size = { 286, 176 }
 
     -- local drop = frame.add{type="frame", style="drop-frame"}
-    local drop = frame.add{type="frame", style="inside_shallow_frame_with_padding"}
+    local drop = frame.add { type = "frame", style = "inside_shallow_frame_with_padding" }
 
-    local left = drop.add{type="flow", direction="vertical"}
+    local left = drop.add { type = "flow", direction = "vertical" }
     left.style.right_margin = 12
 
-    local right = drop.add{type="flow", direction="vertical"}
+    local right = drop.add { type = "flow", direction = "vertical" }
 
-    left.add{type="label", caption="Type:"}
-    local resource_type = left.add{type="choose-elem-button", elem_type="entity", name="resource_type", entity="iron-ore", elem_filters={{filter="type", type="resource"}}}
+    left.add { type = "label", caption = "Type:" }
+    local resource_type = left.add { type = "choose-elem-button", elem_type = "entity", name = "resource_type", entity = "iron-ore", elem_filters = { { filter = "type", type = "resource" } } }
 
-    local range_label = right.add{type="flow"}
-    range_label.add{type="label", caption="Range:"}
-    local range_slider = right.add{type="slider", name="range_slider", minimum_value=0, maximum_value=100, value=1}
-    local range_value = range_label.add{type="label", name="range_value", caption=range_slider.slider_value}
+    local range_label = right.add { type = "flow" }
+    range_label.add { type = "label", caption = "Range:" }
+    local range_slider = right.add { type = "slider", name = "range_slider", minimum_value = 0, maximum_value = 100, value = 1 }
+    local range_value = range_label.add { type = "label", name = "range_value", caption = range_slider.slider_value }
 
-    local count_label = right.add{type="flow"}
-    count_label.add{type="label", caption="Count:"}
-    local count_slider = right.add{type="slider", name="count_slider", minimum_value=1, maximum_value=100, value=5}
-    local count_value = count_label.add{type="label", name="count_value", caption=count_slider.slider_value}
+    local count_label = right.add { type = "flow" }
+    count_label.add { type = "label", caption = "Count:" }
+    local count_slider = right.add { type = "slider", name = "count_slider", minimum_value = 1, maximum_value = 100, value = 5 }
+    local count_value = count_label.add { type = "label", name = "count_value", caption = count_slider.slider_value }
 
-    local ok_button = left.add{type="button", name="ok_button", caption="Find"}
-    ok_button.style.size = {60, 28}
+    local ok_button = left.add { type = "button", name = "ok_button", caption = "Find" }
+    ok_button.style.size = { 60, 28 }
     ok_button.style.top_margin = 2
 
     global.players[player_index] = {
-        close_button=close_button,
-        range_slider=range_slider,
-        range_value=range_value,
-        count_slider=count_slider,
-        count_value=count_value,
-        ok_button=ok_button,
-        resource_type=resource_type,
-        window=frame
+        close_button = close_button,
+        range_slider = range_slider,
+        range_value = range_value,
+        count_slider = count_slider,
+        count_value = count_value,
+        ok_button = ok_button,
+        resource_type = resource_type,
+        window = frame
     }
 
     player.opened = frame
 end
 
-script.on_event(defines.events.on_gui_value_changed, function (event)
+script.on_event(defines.events.on_gui_value_changed, function(event)
     local gui = global.players[event.player_index]
-    if not gui then return end
+    if not gui then
+        return
+    end
 
     if event.element.name == "range_slider" then
         gui.range_value.caption = event.element.slider_value
@@ -245,16 +247,20 @@ end)
 
 function close_gui(player_index)
     local gui = global.players[player_index]
-    if not gui then return end
+    if not gui then
+        return
+    end
     gui.window.destroy()
     global.players[player_index] = nil
 end
 
-script.on_event(defines.events.on_gui_click, function (event)
+script.on_event(defines.events.on_gui_click, function(event)
     local player = game.get_player(event.player_index)
 
     local gui = global.players[event.player_index]
-    if not gui then return end
+    if not gui then
+        return
+    end
 
     if event.element.name == "close_button" then
         close_gui(event.player_index)
