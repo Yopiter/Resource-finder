@@ -212,6 +212,8 @@ function open_gui(player_index)
         resource_type=resource_type,
         window=frame
     }
+
+    player.opened = frame
 end
 
 script.on_event(defines.events.on_gui_value_changed, function (event)
@@ -229,6 +231,13 @@ script.on_event(defines.events.on_gui_value_changed, function (event)
     end
 end)
 
+function close_gui(player_index)
+    local gui = global.players[player_index]
+    if not gui then return end
+    gui.window.destroy()
+    global.players[player_index] = nil
+end
+
 script.on_event(defines.events.on_gui_click, function (event)
     local player = game.get_player(event.player_index)
 
@@ -236,8 +245,7 @@ script.on_event(defines.events.on_gui_click, function (event)
     if not gui then return end
 
     if event.element.name == "close_button" then
-        gui.window.destroy()
-        global.players[event.player_index] = nil
+        close_gui(event.player_index)
         return
     end
 
@@ -248,5 +256,11 @@ script.on_event(defines.events.on_gui_click, function (event)
 
         search_for_resource(game.players[event.player_index], type, range, count)
         return
+    end
+end)
+
+script.on_event(defines.events.on_gui_closed, function(event)
+    if event.element and event.element.name == "resource_finder" then
+        close_gui(event.player_index)
     end
 end)
