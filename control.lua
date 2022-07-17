@@ -68,6 +68,16 @@ local function is_in_distance(chunk, list_of_chunks, distance)
     return false
 end
 
+local function format_amount(amount, resource_name)
+    local prototype = game.entity_prototypes[resource_name]
+    if prototype.infinite_resource then
+        return math.floor(amount
+                / prototype.normal_resource_amount
+                * 100) .. '%'
+    end
+    return util.format_number(amount, true)
+end
+
 function search_for_resource(player, resource, distance, num_results)
     distance = distance or 1
     num_results = num_results or 5
@@ -116,7 +126,7 @@ function search_for_resource(player, resource, distance, num_results)
     for _, chunk in ipairs(searched_chunks) do
         if not is_in_distance(chunk, best_chunks, distance) then
             local image = '[img=entity.' .. resource .. ']'
-            ping(chunk.position, player, image .. util.format_number(chunk.with_neighbors, true))
+            ping(chunk.position, player, image .. format_amount(chunk.with_neighbors, resource))
             table.insert(best_chunks, chunk)
             if #best_chunks >= num_results then
                 break
@@ -134,35 +144,37 @@ end)
 
 -- taken from https://forums.factorio.com/viewtopic.php?t=98713
 function add_titlebar(gui, caption, close_button_name)
-    local titlebar = gui.add{type = "flow"}
+    local titlebar = gui.add { type = "flow" }
     titlebar.drag_target = gui
-    titlebar.add{
-      type = "label",
-      style = "frame_title",
-      caption = caption,
-      ignored_by_interaction = true,
+    titlebar.add {
+        type = "label",
+        style = "frame_title",
+        caption = caption,
+        ignored_by_interaction = true,
     }
-    local filler = titlebar.add{
-      type = "empty-widget",
-      style = "draggable_space",
-      ignored_by_interaction = true,
+    local filler = titlebar.add {
+        type = "empty-widget",
+        style = "draggable_space",
+        ignored_by_interaction = true,
     }
     filler.style.height = 24
     filler.style.horizontally_stretchable = true
-    titlebar.add{
-      type = "sprite-button",
-      name = close_button_name,
-      style = "frame_action_button",
-      sprite = "utility/close_white",
-      hovered_sprite = "utility/close_black",
-      clicked_sprite = "utility/close_black",
-      tooltip = {"gui.close-instruction"},
+    titlebar.add {
+        type = "sprite-button",
+        name = close_button_name,
+        style = "frame_action_button",
+        sprite = "utility/close_white",
+        hovered_sprite = "utility/close_black",
+        clicked_sprite = "utility/close_black",
+        tooltip = { "gui.close-instruction" },
     }
-  end
+end
 
 function open_gui(player_index)
     -- should probably use on_init and on_configuration_changed, but I can't figure out how to make it work in development
-    if not global.players then global.players = {} end
+    if not global.players then
+        global.players = {}
+    end
 
     local player = game.get_player(player_index)
     local gui = player.gui.screen
