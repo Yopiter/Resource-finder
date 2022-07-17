@@ -1,0 +1,10 @@
+{
+  "name": "resource-finder",
+  "version": "0.1",
+  "title": "Resource Finder",
+  "author": "Yopiter+Keithen",
+  "homepage": "",
+  "description": "Search for specific resources on the current surface",
+  "factorio_version": "1.1",
+  "dependencies": []
+}
