@@ -115,7 +115,8 @@ function search_for_resource(player, resource, distance, num_results)
     local best_chunks = {}
     for _, chunk in ipairs(searched_chunks) do
         if not is_in_distance(chunk, best_chunks, distance) then
-            ping(chunk.position, player, util.format_number(chunk.with_neighbors, true))
+            local image = '[img=entity.' .. resource .. ']'
+            ping(chunk.position, player, image .. util.format_number(chunk.with_neighbors, true))
             table.insert(best_chunks, chunk)
             if #best_chunks >= num_results then
                 break
