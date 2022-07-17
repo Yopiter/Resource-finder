@@ -132,6 +132,7 @@ script.on_event(defines.events.on_lua_shortcut, function(event)
     end
 end)
 
+-- taken from https://forums.factorio.com/viewtopic.php?t=98713
 function add_titlebar(gui, caption, close_button_name)
     local titlebar = gui.add{type = "flow"}
     titlebar.drag_target = gui
@@ -160,6 +161,9 @@ function add_titlebar(gui, caption, close_button_name)
   end
 
 function open_gui(player_index)
+    -- should probably use on_init and on_configuration_changed, but I can't figure out how to make it work in development
+    if not global.players then global.players = {} end
+
     local player = game.get_player(player_index)
     local gui = player.gui.screen
 
@@ -169,34 +173,44 @@ function open_gui(player_index)
 
     local frame = gui.add{type="frame", name="resource_finder", direction="vertical"}
     add_titlebar(frame, "Resource Finder", "close_button")
+    local close_button = frame.close_button
     frame.auto_center = true
     frame.style.size = {500, 500}
 
     frame.add{type="label", caption="Type:"}
-    frame.add{type="choose-elem-button", elem_type="entity", name="resource_type", entity="iron-ore", elem_filters={{filter="type", type="resource"}}}
+    local resource_type = frame.add{type="choose-elem-button", elem_type="entity", name="resource_type", entity="iron-ore", elem_filters={{filter="type", type="resource"}}}
 
     frame.add{type="label", caption="Range:"}
     local range_slider = frame.add{type="slider", name="range_slider", minimum_value=0, maximum_value=100, value=1}
-    frame.add{type="label", name="range_value", caption=range_slider.slider_value}
+    local range_value = frame.add{type="label", name="range_value", caption=range_slider.slider_value}
 
     frame.add{type="label", caption="Count:"}
     local count_slider = frame.add{type="slider", name="count_slider", minimum_value=1, maximum_value=100, value=5}
-    frame.add{type="label", name="count_value", caption=count_slider.slider_value}
+    local count_value = frame.add{type="label", name="count_value", caption=count_slider.slider_value}
 
-    frame.add{type="button", name="ok_button", caption="Find"}
+    local ok_button = frame.add{type="button", name="ok_button", caption="Find"}
+
+    global.players[player_index] = {
+        close_button=close_button,
+        range_slider=range_slider,
+        range_value=range_value,
+        count_slider=count_slider,
+        count_value=count_value,
+        ok_button=ok_button,
+        resource_type=resource_type
+    }
 end
 
 script.on_event(defines.events.on_gui_value_changed, function (event)
-    local player = game.get_player(event.player_index)
+    local gui = global.players[event.player_index]
+    if not gui then return end
 
     if event.element.name == "range_slider" then
-        local gui = player.gui.screen.resource_finder
         gui.range_value.caption = event.element.slider_value
         return
     end
 
     if event.element.name == "count_slider" then
-        local gui = player.gui.screen.resource_finder
         gui.count_value.caption = event.element.slider_value
         return
     end
@@ -205,15 +219,16 @@ end)
 script.on_event(defines.events.on_gui_click, function (event)
     local player = game.get_player(event.player_index)
 
+    local gui = global.players[event.player_index]
+    if not gui then return end
+
     if event.element.name == "close_button" then
-        local gui = player.gui.screen.resource_finder
         gui.destroy()
+        global.players[event.player_index] = nil
         return
     end
 
     if event.element.name == "ok_button" then
-        local gui = player.gui.screen.resource_finder
-
         local range = gui.range_slider.slider_value
         local count = gui.count_slider.slider_value
         local type = gui.resource_type.elem_value
