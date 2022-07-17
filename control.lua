@@ -173,7 +173,7 @@ function open_gui(player_index)
     frame.style.size = {500, 500}
 
     frame.add{type="label", caption="Type:"}
-    frame.add{type="choose-elem-button", elem_type="entity", name="resource_type", entity="iron-ore", filters={filter = "type", type = "resource"}}
+    frame.add{type="choose-elem-button", elem_type="entity", name="resource_type", entity="iron-ore", elem_filters={{filter="type", type="resource"}}}
 
     frame.add{type="label", caption="Range:"}
     local range_slider = frame.add{type="slider", name="range_slider", minimum_value=0, maximum_value=100, value=1}
