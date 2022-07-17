@@ -255,6 +255,7 @@ function close_gui(player_index)
 end
 
 script.on_event(defines.events.on_gui_click, function(event)
+    global.players = global.players or {}
     local player = game.get_player(event.player_index)
 
     local gui = global.players[event.player_index]
