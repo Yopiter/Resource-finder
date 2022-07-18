@@ -245,6 +245,17 @@ script.on_event(defines.events.on_gui_value_changed, function(event)
     end
 end)
 
+script.on_event(defines.events.on_gui_elem_changed, function(event)
+    local gui = global.players[event.player_index]
+    if not gui then
+        return
+    end
+    if event.element.name == 'resource_type' then
+        local type = gui.resource_type.elem_value
+        gui.ok_button.enabled = type ~= nil
+    end
+end)
+
 function close_gui(player_index)
     local gui = global.players[player_index]
     if not gui then
