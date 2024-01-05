@@ -87,6 +87,7 @@ function search_for_resource(player, resource, distance, num_results)
     local chunks_with_res = {}
 
     -- Find chunks that contain the resource in question
+    local absolute_global_amount = 0
     for chunk in surface.get_chunks() do
         if force.is_chunk_charted(surface, chunk) and surface.count_entities_filtered { type = 'resource',
                                                                                         name = resource,
@@ -100,6 +101,7 @@ function search_for_resource(player, resource, distance, num_results)
                 amount = amount,
                 with_neighbors = amount
             }
+            absolute_global_amount = absolute_global_amount + amount
             chunks_with_res[chunk_key(context_chunk)] = context_chunk
         end
     end
@@ -123,16 +125,20 @@ function search_for_resource(player, resource, distance, num_results)
         return a.with_neighbors > b.with_neighbors
     end)
     local best_chunks = {}
+    local amount_in_best_patches = 0
+    local image = '[img=entity.' .. resource .. ']'
     for _, chunk in ipairs(searched_chunks) do
         if not is_in_distance(chunk, best_chunks, distance) then
-            local image = '[img=entity.' .. resource .. ']'
             ping(chunk.position, player, image .. format_amount(chunk.with_neighbors, resource), surface)
             table.insert(best_chunks, chunk)
+            amount_in_best_patches = amount_in_best_patches + chunk.with_neighbors
             if #best_chunks >= num_results then
                 break
             end
         end
     end
+    player.print(image .. format_amount(amount_in_best_patches, resource) .. ' was found in the ' .. #best_chunks .. ' biggest patches')
+    player.print(image .. format_amount(absolute_global_amount, resource) .. ' was found in all explored chunks')
 end
 
 -- user clicked button directly
